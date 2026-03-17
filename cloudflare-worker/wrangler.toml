@@ -1,0 +1,11 @@
+name = "intelligent-landlord-data"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+ENVIRONMENT = "production"
+
+# Optional: add KV namespace for caching
+# [[kv_namespaces]]
+# binding = "KV"
+# id = "YOUR_KV_NAMESPACE_ID"
