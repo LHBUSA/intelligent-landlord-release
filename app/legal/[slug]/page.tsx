@@ -1,24 +1,17 @@
-import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getArticle, getSlugsForCategory } from '@/lib/articles'
-import { ArticleLayout } from '@/components/ArticleLayout'
+import { getArticle, getSlugsForlegal } from '@/lib/articles'
+import { ArticlePage } from '@/components/ArticlePage'
+import type { Articlelegal } from '@/lib/articles'
 
-type Props = { params: Promise<{ slug: string }> }
+const CAT = 'legal' as Articlelegal
 
 export async function generateStaticParams() {
-  return getSlugsForCategory('legal').map(slug => ({ slug }))
+  return getSlugsForlegal(CAT).map(slug => ({ slug }))
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const article = getArticle('legal', slug)
-  if (!article) return {}
-  return { title: article.seoTitle || article.title, description: article.seoDescription || article.excerpt }
-}
-
-export default async function ArticlePage({ params }: Props) {
-  const { slug } = await params
-  const article = getArticle('legal', slug)
+  const article = getArticle(CAT, slug)
   if (!article) notFound()
-  return <ArticleLayout article={article} />
+  return <ArticlePage article={article} />
 }
