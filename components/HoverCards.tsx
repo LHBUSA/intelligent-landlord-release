@@ -1,9 +1,7 @@
 'use client'
 import Link from 'next/link'
-
 type Pillar = { cat: string; label: string; desc: string; color: string; count: number; href: string }
 type Article = { slug: string; category: string; categoryLabel: string; title: string; excerpt: string; readTime: string }
-
 export function PillarCards({ pillars }: { pillars: Pillar[] }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 1 }}>
@@ -23,7 +21,6 @@ export function PillarCards({ pillars }: { pillars: Pillar[] }) {
     </div>
   )
 }
-
 export function ArticleCards({ articles }: { articles: Article[] }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 1 }}>
