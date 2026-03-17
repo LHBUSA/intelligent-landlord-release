@@ -176,8 +176,5 @@ export function LiveTicker() {
             </span>
           </div>
         )}
-      </div>
-    </div>
-  )
-}
+
 
