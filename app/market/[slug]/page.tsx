@@ -1,12 +1,12 @@
-import { notFound } from 'next/navigation'
-import { getArticle, getSlugsFormarket } from '@/lib/articles'
-import { ArticlePage } from '@/components/ArticlePage'
-import type { Articlemarket } from '@/lib/articles'
+import { notFound } from "next/navigation"
+import { getArticle, getSlugsForCategory } from "@/lib/articles"
+import { ArticlePage } from "@/components/ArticlePage"
+import type { ArticleCategory } from "@/lib/articles"
 
-const CAT = 'market' as Articlemarket
+const CAT = "market" as ArticleCategory
 
 export async function generateStaticParams() {
-  return getSlugsFormarket(CAT).map(slug => ({ slug }))
+  return getSlugsForCategory(CAT).map(slug => ({ slug }))
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
