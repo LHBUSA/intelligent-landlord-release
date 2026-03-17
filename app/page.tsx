@@ -1,13 +1,14 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getFeaturedArticle, getRecentArticles, getLatestNews, CATEGORY_COUNTS, ARTICLE_COUNT } from '@/lib/articles'
 import { AdSlot } from '@/components/AdSlot'
 import { PillarCards, ArticleCards } from '@/components/HoverCards'
-import { LiveTicker } from '@/components/LiveTicker'
+import dynamic from 'next/dynamic'
+const LiveTicker = dynamic(() => import('@/components/LiveTicker').then(m => ({ default: m.LiveTicker })), { ssr: false })
 import { NewsStrip } from '@/components/NewsStrip'
 
 export const metadata: Metadata = {
-  title: 'Intelligent Landlord — Free Rental Property Intelligence',
+  title: 'Intelligent Landlord â€” Free Rental Property Intelligence',
   description: 'Landlord-tenant laws for all 50 states, live rental market data, lease guides, and free calculators. No signup, no paywall, no agenda.',
 }
 
@@ -24,9 +25,9 @@ export default function Home() {
   ]
 
   const PILLARS = [
-    { cat: 'guides', label: 'Landlord Guides',  desc: 'Lease agreements, tenant screening, habitability, security deposits — written in plain English.', color: 'var(--teal)', count: CATEGORY_COUNTS.guides, href: '/guides' },
+    { cat: 'guides', label: 'Landlord Guides',  desc: 'Lease agreements, tenant screening, habitability, security deposits â€” written in plain English.', color: 'var(--teal)', count: CATEGORY_COUNTS.guides, href: '/guides' },
     { cat: 'market', label: 'Rental Market',    desc: 'Cap rates, vacancy trends, rent growth by market, and the data landlords need to price correctly.', color: 'var(--gold)', count: CATEGORY_COUNTS.market, href: '/market' },
-    { cat: 'legal',  label: 'State Laws',       desc: 'Eviction timelines, deposit limits, notice requirements, and rent control — all 50 states.', color: 'var(--blue)', count: CATEGORY_COUNTS.legal, href: '/legal' },
+    { cat: 'legal',  label: 'State Laws',       desc: 'Eviction timelines, deposit limits, notice requirements, and rent control â€” all 50 states.', color: 'var(--blue)', count: CATEGORY_COUNTS.legal, href: '/legal' },
   ]
 
   // Shape news items for the client component (no functions passed)
@@ -61,16 +62,16 @@ export default function Home() {
               Find My State Laws
             </Link>
             <Link href="/tools" style={{ border: '1px solid var(--border)', color: 'var(--muted)', padding: '12px 28px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Free Calculators →
+              Free Calculators â†’
             </Link>
             <Link href="/news" style={{ border: '1px solid rgba(45,212,191,0.2)', color: 'var(--teal)', padding: '12px 28px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Weekly Intel →
+              Weekly Intel â†’
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Live Market Ticker — client component */}
+      {/* Live Market Ticker â€” client component */}
       <LiveTicker />
 
       {/* Stats bar */}
@@ -90,7 +91,7 @@ export default function Home() {
         <PillarCards pillars={PILLARS} />
       </section>
 
-      {/* Weekly Intel strip — client component */}
+      {/* Weekly Intel strip â€” client component */}
       {newsItems.length > 0 && <NewsStrip items={newsItems} />}
 
       {/* Featured article */}
@@ -100,13 +101,13 @@ export default function Home() {
           <Link href={`/${featured.category}/${featured.slug}`} style={{ display: 'block', background: 'var(--bg2)', border: '1px solid var(--border)', padding: 'clamp(24px,4vw,48px)', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, var(--teal) 0%, transparent 100%)' }} />
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 16 }}>
-              {featured.pill} · {featured.readTime} read
+              {featured.pill} Â· {featured.readTime} read
             </div>
             <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(1.5rem, 3vw, 2.5rem)', fontWeight: 600, lineHeight: 1.25, maxWidth: '26ch', marginBottom: 14 }}>
               {featured.title}
             </h2>
             <p style={{ color: 'var(--muted)', maxWidth: '62ch', lineHeight: 1.65 }}>{featured.excerpt}</p>
-            <div style={{ marginTop: 20, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--teal)', letterSpacing: '0.06em' }}>Read article →</div>
+            <div style={{ marginTop: 20, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--teal)', letterSpacing: '0.06em' }}>Read article â†’</div>
           </Link>
         </section>
       )}
@@ -115,7 +116,7 @@ export default function Home() {
       <section style={{ maxWidth: 'var(--max-w)', margin: '0 auto', padding: 'clamp(40px,5vw,64px) var(--page-pad)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 24 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)' }}>Recent Articles</div>
-          <Link href="/news" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--teal)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>All Stories →</Link>
+          <Link href="/news" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--teal)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>All Stories â†’</Link>
         </div>
         <ArticleCards articles={recent} />
       </section>
@@ -126,10 +127,10 @@ export default function Home() {
           <div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 12 }}>All 50 States + DC</div>
             <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 600, marginBottom: 10 }}>Find the landlord laws for your state</h2>
-            <p style={{ color: 'var(--muted)', maxWidth: '55ch', lineHeight: 1.65, fontSize: 15 }}>Security deposit limits, eviction timelines, required notices, rent control status — every state, always free.</p>
+            <p style={{ color: 'var(--muted)', maxWidth: '55ch', lineHeight: 1.65, fontSize: 15 }}>Security deposit limits, eviction timelines, required notices, rent control status â€” every state, always free.</p>
           </div>
           <Link href="/legal" style={{ background: 'var(--teal)', color: '#080D14', padding: '14px 32px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0 }}>
-            Browse All States →
+            Browse All States â†’
           </Link>
         </div>
       </section>
@@ -141,3 +142,4 @@ export default function Home() {
     </>
   )
 }
+
