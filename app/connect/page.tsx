@@ -75,29 +75,21 @@ export default function ConnectPage() {
           {status === 'error' && <p style={{ color: 'var(--red)', fontFamily: "'JetBrains Mono', monospace", fontSize: 11, textAlign: 'center' }}>Something went wrong. Email us: hello@intelligentlandlord.com</p>}
         </div>
         <div style={{ paddingTop: 8 }}>
-          <div style={{ marginBottom: 48 }}>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 20 }}>Who we work with</div>
-            {[
-              { icon: '🏠', title: 'Sellers', body: 'If you own a property and want to explore your options — we buy homes nationwide in partnership with sellers. No commission, no nonsense.' },
-              { icon: '📋', title: 'Landlords', body: 'Questions about the laws on our site, a correction to flag, or a topic you want us to cover — we want to hear it.' },
-              { icon: '📈', title: 'Investors and Partners', body: 'Looking to co-invest, source deals, or build something together? We are open to serious conversations with serious people.' },
-              { icon: '🤝', title: 'Business Inquiries', body: 'PropTech partnerships, media appearances, data licensing — reach out with a clear ask and we will respond.' },
-            ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 28, paddingBottom: 28, borderBottom: i < 3 ? '1px solid var(--border2)' : 'none' }}>
-                <div style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>{item.icon}</div>
-                <div>
-                  <div style={{ fontWeight: 600, marginBottom: 6, fontSize: 15 }}>{item.title}</div>
-                  <div style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.65 }}>{item.body}</div>
-                </div>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 20 }}>Who we work with</div>
+          {[
+            { icon: '🏠', title: 'Property Sellers', body: 'Thinking about selling and want honest intel on what your property is worth and what your options are — we are happy to talk through it.' },
+            { icon: '📋', title: 'Landlords', body: 'Questions about the laws on our site, a correction to flag, or a topic you want us to cover — we want to hear it.' },
+            { icon: '📈', title: 'Investors and Partners', body: 'Looking to co-invest, source deals, or build something together? We are open to serious conversations with serious people.' },
+            { icon: '🤝', title: 'Business Inquiries', body: 'PropTech partnerships, media appearances, data licensing — reach out with a clear ask and we will respond.' },
+          ].map((item, i) => (
+            <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 28, paddingBottom: 28, borderBottom: i < 3 ? '1px solid var(--border2)' : 'none' }}>
+              <div style={{ fontSize: 22, flexShrink: 0, marginTop: 2 }}>{item.icon}</div>
+              <div>
+                <div style={{ fontWeight: 600, marginBottom: 6, fontSize: 15 }}>{item.title}</div>
+                <div style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.65 }}>{item.body}</div>
               </div>
-            ))}
-          </div>
-          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', padding: 28, position: 'relative', overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, var(--teal) 0%, transparent 100%)' }} />
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 12 }}>Want to sell your home?</div>
-            <p style={{ color: 'var(--muted)', fontSize: 14, lineHeight: 1.65, marginBottom: 16 }}>Local Home Buyers USA works with sellers nationwide. No agents, no commissions, no lowball games. Just a transparent offer.</p>
-            <a href="https://www.localhomebuyersusa.com" target="_blank" rel="noopener noreferrer" style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--teal)', letterSpacing: '0.08em', textTransform: 'uppercase', textDecoration: 'none' }}>LocalHomeBuyersUSA.com</a>
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
