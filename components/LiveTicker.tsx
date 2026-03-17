@@ -4,26 +4,8 @@ import { useEffect, useState } from 'react'
 
 const WORKER_URL = 'https://il-data-worker.sales-fd3.workers.dev'
 
-interface Metric {
-  value: number
-  label: string
-  suffix?: string
-  prefix?: string
-  source?: string
-  live?: boolean
-  date?: string
-}
-
-interface MarketPulse {
-  mortgage30: Metric
-  vacancy: Metric
-  cpi: Metric
-  fedFunds: Metric
-  medianRent: Metric
-  rentGrowth: Metric
-  avgCapRate: Metric
-  fetchedAt?: string
-}
+interface Metric { value: number; label: string; suffix?: string; prefix?: string; source?: string; live?: boolean; date?: string }
+interface MarketPulse { mortgage30: Metric; vacancy: Metric; cpi: Metric; fedFunds: Metric; medianRent: Metric; rentGrowth: Metric; avgCapRate: Metric; fetchedAt?: string }
 
 const STATIC_DATA: MarketPulse = {
   mortgage30: { value: 6.11, label: '30-YR FIXED',      suffix: '%', source: 'Freddie Mac' },
@@ -35,9 +17,7 @@ const STATIC_DATA: MarketPulse = {
   avgCapRate: { value: 5.8,  label: 'AVG CAP RATE',     suffix: '%', source: 'CBRE' },
 }
 
-function fmt(v: number, decimals = 2): string {
-  return v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
-}
+function fmt(v: number, decimals = 2): string { return v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) }
 
 function TickerItem({ metric, loading }: { metric: Metric; loading: boolean }) {
   return (
@@ -45,14 +25,8 @@ function TickerItem({ metric, loading }: { metric: Metric; loading: boolean }) {
       <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 22, fontWeight: 700, color: loading ? 'rgba(45,212,191,0.4)' : 'var(--teal)', lineHeight: 1, marginBottom: 3, transition: 'color 0.4s' }}>
         {metric.prefix || ''}{fmt(metric.value)}{metric.suffix || ''}
       </div>
-      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 2 }}>
-        {metric.label}
-      </div>
-      {metric.source && (
-        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: 'rgba(139,149,163,0.5)', letterSpacing: '0.06em' }}>
-          {metric.source}{metric.live ? ' · LIVE' : ''}
-        </div>
-      )}
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 2 }}>{metric.label}</div>
+      {metric.source && <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: 'rgba(139,149,163,0.5)', letterSpacing: '0.06em' }}>{metric.source}{metric.live ? ' · LIVE' : ''}</div>}
     </div>
   )
 }
@@ -60,29 +34,27 @@ function TickerItem({ metric, loading }: { metric: Metric; loading: boolean }) {
 export function LiveTicker() {
   const [data, setData] = useState<MarketPulse>(STATIC_DATA)
   const [loading, setLoading] = useState(true)
-  const [lastUpdated, setLastUpdated] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+  const [updatedTime, setUpdatedTime] = useState<string | null>(null)
 
   useEffect(() => {
+    setMounted(true)
     let cancelled = false
     async function fetchData() {
       try {
         const res = await fetch(`${WORKER_URL}/market-pulse`)
-        if (!res.ok) throw new Error('fetch failed')
+        if (!res.ok) throw new Error('fail')
         const json = await res.json() as MarketPulse
         if (!cancelled) {
           setData(json)
-          setLastUpdated(json.fetchedAt || null)
+          if (json.fetchedAt) setUpdatedTime(new Date(json.fetchedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }))
           setLoading(false)
         }
-      } catch {
-        if (!cancelled) setLoading(false)
-      }
+      } catch { if (!cancelled) setLoading(false) }
     }
     const t = setTimeout(fetchData, 800)
     return () => { cancelled = true; clearTimeout(t) }
   }, [])
-
-  const metrics = [data.mortgage30, data.medianRent, data.vacancy, data.rentGrowth, data.avgCapRate, data.fedFunds, data.cpi]
 
   return (
     <div style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border2)', borderBottom: '1px solid var(--border2)', overflow: 'hidden', position: 'relative' }}>
@@ -92,19 +64,15 @@ export function LiveTicker() {
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 2 }}>Market Pulse</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: loading ? 'var(--muted)' : 'var(--green)', boxShadow: loading ? 'none' : '0 0 6px var(--green)', flexShrink: 0 }} />
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: loading ? 'var(--muted)' : 'var(--green)', letterSpacing: '0.1em' }}>
-              {loading ? 'LOADING' : 'LIVE'}
-            </span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: loading ? 'var(--muted)' : 'var(--green)', letterSpacing: '0.1em' }}>{loading ? 'LOADING' : 'LIVE'}</span>
           </div>
         </div>
-        {metrics.map((m, i) => (
+        {[data.mortgage30, data.medianRent, data.vacancy, data.rentGrowth, data.avgCapRate, data.fedFunds, data.cpi].map((m, i) => (
           <TickerItem key={i} metric={m} loading={loading} />
         ))}
-        {lastUpdated && (
+        {mounted && updatedTime && (
           <div style={{ display: 'flex', alignItems: 'center', paddingLeft: 16, flexShrink: 0 }}>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: 'rgba(139,149,163,0.4)', letterSpacing: '0.06em' }}>
-              Updated {new Date(lastUpdated).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
-            </span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: 'rgba(139,149,163,0.4)', letterSpacing: '0.06em' }}>Updated {updatedTime}</span>
           </div>
         )}
       </div>
