@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 
 export function SiteFooter() {
   return (
@@ -22,8 +22,8 @@ export function SiteFooter() {
           </div>
           <div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 14 }}>State Laws</div>
-            {['California', 'Texas', 'Florida', 'New York', 'Ohio'].map(s => (
-              <div key={s} style={{ marginBottom: 8 }}><Link href={`/legal/states/${s.toLowerCase().replace(' ', '-')}`} style={{ fontSize: 13, color: 'var(--muted)' }}>{s}</Link></div>
+            {[{n:'California',c:'ca'},{n:'Texas',c:'tx'},{n:'Florida',c:'fl'},{n:'New York',c:'ny'},{n:'Ohio',c:'oh'}].map(s => (
+              <div key={s.c} style={{ marginBottom: 8 }}><Link href={`/legal/states/${s.c}`} style={{ fontSize: 13, color: 'var(--muted)' }}>{s.n}</Link></div>
             ))}
           </div>
           <div>

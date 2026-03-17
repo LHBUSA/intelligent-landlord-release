@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 
@@ -172,7 +172,7 @@ export function LiveTicker() {
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: 8, color: 'rgba(139,149,163,0.4)', letterSpacing: '0.06em',
             }}>
-              Updated {new Date(lastUpdated).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+              Updated {lastUpdated ? new Date(lastUpdated).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : ''})}
             </span>
           </div>
         )}
@@ -180,3 +180,4 @@ export function LiveTicker() {
     </div>
   )
 }
+
