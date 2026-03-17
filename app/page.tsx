@@ -3,8 +3,7 @@ import type { Metadata } from 'next'
 import { getFeaturedArticle, getRecentArticles, getLatestNews, CATEGORY_COUNTS, ARTICLE_COUNT } from '@/lib/articles'
 import { AdSlot } from '@/components/AdSlot'
 import { PillarCards, ArticleCards } from '@/components/HoverCards'
-import dynamic from 'next/dynamic'
-const LiveTicker = dynamic(() => import('@/components/LiveTicker').then(m => ({ default: m.LiveTicker })), { ssr: false })
+import { LiveTickerClient as LiveTicker } from '@/components/LiveTickerClient'
 import { NewsStrip } from '@/components/NewsStrip'
 
 export const metadata: Metadata = {
@@ -142,4 +141,5 @@ export default function Home() {
     </>
   )
 }
+
 
