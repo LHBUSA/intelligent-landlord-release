@@ -17,7 +17,11 @@ const STATIC_DATA: MarketPulse = {
   avgCapRate: { value: 5.8,  label: 'AVG CAP RATE',     suffix: '%', source: 'CBRE' },
 }
 
-function fmt(v: number, decimals = 2): string { return v.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) }
+function fmt(v: number): string {
+  const abs = Math.abs(v)
+  const str = abs % 1 === 0 ? abs.toFixed(2) : abs.toFixed(2)
+  return (v < 0 ? '-' : '') + str
+}
 
 function TickerItem({ metric, loading }: { metric: Metric; loading: boolean }) {
   return (
@@ -56,9 +60,11 @@ export function LiveTicker() {
     return () => { cancelled = true; clearTimeout(t) }
   }, [])
 
+  if (!mounted) return null
+
   return (
     <div style={{ background: 'var(--bg2)', borderTop: '1px solid var(--border2)', borderBottom: '1px solid var(--border2)', overflow: 'hidden', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: loading ? 'linear-gradient(90deg, var(--teal) 0%, transparent 60%)' : 'linear-gradient(90deg, var(--teal) 0%, var(--teal2) 50%, transparent 100%)', opacity: loading ? 0.5 : 0.3 }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, var(--teal) 0%, transparent 60%)', opacity: 0.3 }} />
       <div style={{ maxWidth: 'var(--max-w)', margin: '0 auto', padding: '0 var(--page-pad)', display: 'flex', alignItems: 'stretch', overflowX: 'auto', scrollbarWidth: 'none' }}>
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '10px 20px 10px 0', borderRight: '1px solid rgba(45,212,191,0.2)', flexShrink: 0, marginRight: 4 }}>
           <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 2 }}>Market Pulse</div>
@@ -70,7 +76,7 @@ export function LiveTicker() {
         {[data.mortgage30, data.medianRent, data.vacancy, data.rentGrowth, data.avgCapRate, data.fedFunds, data.cpi].map((m, i) => (
           <TickerItem key={i} metric={m} loading={loading} />
         ))}
-        {mounted && updatedTime && (
+        {updatedTime && (
           <div style={{ display: 'flex', alignItems: 'center', paddingLeft: 16, flexShrink: 0 }}>
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 8, color: 'rgba(139,149,163,0.4)', letterSpacing: '0.06em' }}>Updated {updatedTime}</span>
           </div>
