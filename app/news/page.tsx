@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { ALL_ARTICLES } from '@/lib/articles'
+import { ARTICLES } from '@/lib/articles'
 
 export const metadata: Metadata = {
   title: 'Landlord News & Weekly Intel',
@@ -12,7 +12,7 @@ function formatDate(d: string) {
 }
 
 export default function NewsPage() {
-  const sorted = [...ALL_ARTICLES].sort(
+  const sorted = [...ARTICLES].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   )
 
@@ -36,14 +36,14 @@ export default function NewsPage() {
             <span style={{ color: 'var(--teal)' }}>Every Week. Always Free.</span>
           </h1>
           <p style={{ color: 'var(--muted)', maxWidth: '58ch', lineHeight: 1.7, fontSize: 16 }}>
-            Mortgage rate moves, eviction law changes, rental market data, and state law updates — curated for landlords and delivered weekly. No fluff. No paywall.
+            Mortgage rate moves, eviction law changes, rental market data, and state law updates â€” curated for landlords and delivered weekly. No fluff. No paywall.
           </p>
         </div>
       </section>
 
       <div style={{ maxWidth: 'var(--max-w)', margin: '0 auto', padding: 'clamp(40px,5vw,64px) var(--page-pad)' }}>
 
-        {/* Latest issue — featured */}
+        {/* Latest issue â€” featured */}
         {latest && (
           <div style={{ marginBottom: 56 }}>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 20 }}>Latest Issue</div>
@@ -54,14 +54,14 @@ export default function NewsPage() {
                   {latest.pill}
                 </span>
                 <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--muted)', letterSpacing: '0.06em' }}>
-                  {formatDate(latest.publishedAt)} · {latest.readTime} read
+                  {formatDate(latest.publishedAt)} Â· {latest.readTime} read
                 </span>
               </div>
               <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(1.4rem,2.8vw,2.2rem)', fontWeight: 600, lineHeight: 1.25, maxWidth: '28ch', marginBottom: 12 }}>
                 {latest.title}
               </h2>
               <p style={{ color: 'var(--muted)', maxWidth: '64ch', lineHeight: 1.65, fontSize: 15 }}>{latest.excerpt}</p>
-              <div style={{ marginTop: 20, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--teal)', letterSpacing: '0.06em' }}>Read this week's issue →</div>
+              <div style={{ marginTop: 20, fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--teal)', letterSpacing: '0.06em' }}>Read this week's issue â†’</div>
             </Link>
           </div>
         )}
