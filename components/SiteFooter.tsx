@@ -174,6 +174,19 @@ export function SiteFooter() {
           opacity: 1;
         }
 
+        .footer-poweredby-link {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 12px;
+          letter-spacing: 0.08em;
+          color: var(--teal);
+          text-decoration: none;
+          opacity: 0.7;
+          transition: opacity 0.2s;
+        }
+        .footer-poweredby-link:hover {
+          opacity: 1;
+        }
+
         .footer-watermark {
           position: absolute;
           bottom: -20px;
@@ -247,18 +260,7 @@ export function SiteFooter() {
             <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', opacity: 0.5 }}>
               Powered by
             </span>
-            <a href="https://www.proptechusa.ai" target="_blank" rel="noopener noreferrer" style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 12,
-              letterSpacing: '0.08em',
-              color: 'var(--teal)',
-              textDecoration: 'none',
-              opacity: 0.7,
-              transition: 'opacity 0.2s',
-            }}
-              onMouseOver={e => (e.currentTarget.style.opacity = '1')}
-              onMouseOut={e => (e.currentTarget.style.opacity = '0.7')}
-            >
+            <a href="https://www.proptechusa.ai" target="_blank" rel="noopener noreferrer" className="footer-poweredby-link">
               PropTechUSA.ai ↗
             </a>
           </div>
