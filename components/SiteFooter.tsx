@@ -14,32 +14,33 @@ const NETWORK = [
 
 const NAV_COLS: { label: string; links: { text: string; href: string }[] }[] = [
   {
-    label: 'Guides',
+    label: 'Learn',
     links: [
-      { text: 'Landlord-Tenant Law', href: '/guides' },
-      { text: 'Tenant Screening', href: '/guides' },
-      { text: 'Lease Agreements', href: '/guides' },
-      { text: 'Security Deposits', href: '/guides' },
-      { text: 'Eviction Process', href: '/guides' },
+      { text: 'Landlord Guides',    href: '/guides' },
+      { text: 'Eviction Process',   href: '/eviction' },
+      { text: 'Rental Market Data', href: '/market' },
+      { text: 'News & Updates',     href: '/news' },
+      { text: 'Connect With Us',    href: '/connect' },
     ],
   },
   {
     label: 'State Laws',
     links: [
       { text: 'California', href: '/legal/states/california' },
-      { text: 'Texas', href: '/legal/states/texas' },
-      { text: 'Florida', href: '/legal/states/florida' },
-      { text: 'New York', href: '/legal/states/new-york' },
-      { text: 'Ohio', href: '/legal/states/ohio' },
+      { text: 'Texas',      href: '/legal/states/texas' },
+      { text: 'Florida',    href: '/legal/states/florida' },
+      { text: 'New York',   href: '/legal/states/new-york' },
+      { text: 'Ohio',       href: '/legal/states/ohio' },
+      { text: 'All States', href: '/legal/states' },
     ],
   },
   {
     label: 'Tools',
     links: [
-      { text: 'Rental ROI Calculator', href: '/tools' },
-      { text: 'Deposit Limit Lookup', href: '/tools' },
-      { text: 'Rent Increase Calculator', href: '/tools' },
-      { text: 'Cash Flow Analyzer', href: '/tools' },
+      { text: 'All Free Tools',          href: '/tools' },
+      { text: 'Rental ROI Calculator',   href: '/tools' },
+      { text: 'Deposit Limit Lookup',    href: '/tools' },
+      { text: 'Rent Increase Calculator',href: '/tools' },
       { text: 'Eviction Cost Estimator', href: '/tools' },
     ],
   },
