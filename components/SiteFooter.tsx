@@ -32,8 +32,6 @@ export function SiteFooter() {
               <div key={t} style={{ marginBottom: 8 }}><Link href="/tools" style={{ fontSize: 13, color: 'var(--muted)' }}>{t}</Link></div>
             ))}
           </div>
-
-          {/* ── Sister Sites ── */}
           <div>
             <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 14 }}>Our Network</div>
             {[
@@ -41,18 +39,10 @@ export function SiteFooter() {
               { label: 'IntelligentHomeBuying.com', href: 'https://www.intelligenthomebuying.com/' },
             ].map(({ label, href }) => (
               <div key={label} style={{ marginBottom: 8 }}>
-                
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ fontSize: 13, color: 'var(--muted)', transition: 'color 0.2s' }}
-                >
-                  {label}
-                </a>
+                <a href={href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: 'var(--muted)', transition: 'color 0.2s' }}>{label}</a>
               </div>
             ))}
           </div>
-
         </div>
         <div style={{ borderTop: '1px solid var(--border2)', paddingTop: 24, display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--muted)', letterSpacing: '0.06em' }}>
