@@ -1,258 +1,123 @@
 import Link from 'next/link'
-import type { Metadata } from 'next'
-import { getArticle, getRecentArticles } from '@/lib/articles'
-import { notFound } from 'next/navigation'
-import { AdSlot } from '@/components/AdSlot'
 
-export const revalidate = 3600
+const SITE_URL = 'https://www.intelligentlandlord.com'
 
-const mono  = "'JetBrains Mono', monospace"
-const serif = "'Cormorant Garamond', Georgia, serif"
-
-interface Props {
-  params: { slug: string }
+// Uses only fields returned by supabaseToArticle — no dependency on Article type
+interface ArticleProps {
+  slug: string
+  title: string
+  excerpt: string
+  category: string
+  categoryLabel: string
+  pill: string
+  publishedAt: string
+  readTime: string
+  author: string
+  body: string
+  featured: boolean
+  faqs?: { q: string; a: string }[]
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const article = await getArticle(params.slug)
-  if (!article) return { title: 'Article Not Found' }
-  return {
-    title: `${article.title} — Intelligent Landlord`,
-    description: article.excerpt || '',
+export function ArticlePage({ article: a }: { article: ArticleProps }) {
+  const color = a.category === 'market' ? 'var(--gold)' : a.category === 'legal' ? 'var(--blue)' : 'var(--teal)'
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: a.title,
+    description: a.excerpt,
+    author: { '@type': 'Organization', name: 'Intelligent Landlord' },
+    publisher: { '@type': 'Organization', name: 'Intelligent Landlord', logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon.svg` } },
+    datePublished: a.publishedAt,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE_URL}/${a.category}/${a.slug}` },
   }
-}
 
-export default async function ArticlePage({ params }: Props) {
-  const article = await getArticle(params.slug)
-  if (!article) notFound()
-
-  const related = await getRecentArticles(4, params.slug)
-
-  const categoryLabel: Record<string, string> = {
-    guides: 'Landlord Guides',
-    market: 'Rental Market',
-    legal:  'State Laws',
-    news:   'News',
-  }
+  const faqSchema = a.faqs && a.faqs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: a.faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  } : null
 
   return (
-    <>
-      {/* ── Article dark theme reset ── */}
+    <div style={{ maxWidth: 'var(--max-w)', margin: '0 auto', padding: 'clamp(40px,6vw,80px) var(--page-pad)' }}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
+      {faqSchema && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />}
+
       <style>{`
-        .il-article-body {
-          color: var(--text) !important;
-          background: transparent !important;
-        }
-        .il-article-body * {
-          color: inherit !important;
-          background-color: transparent !important;
-          border-color: var(--border) !important;
-        }
-        .il-article-body h1,
-        .il-article-body h2,
-        .il-article-body h3,
-        .il-article-body h4 {
+        .il-prose { color: var(--text) !important; background: transparent !important; }
+        .il-prose * { color: inherit !important; background-color: transparent !important; border-color: var(--border2) !important; }
+        .il-prose h1,.il-prose h2,.il-prose h3,.il-prose h4 {
           font-family: 'Cormorant Garamond', Georgia, serif !important;
-          color: var(--text) !important;
-          margin-top: 2em;
-          margin-bottom: 0.5em;
-          line-height: 1.25;
+          color: var(--text) !important; font-weight: 600; line-height: 1.25;
+          margin-top: 2em; margin-bottom: 0.5em;
         }
-        .il-article-body h2 { font-size: clamp(1.4rem, 2.5vw, 1.9rem); }
-        .il-article-body h3 { font-size: clamp(1.15rem, 2vw, 1.45rem); }
-        .il-article-body p  { line-height: 1.8; margin-bottom: 1.25em; opacity: 0.88; }
-        .il-article-body a  { color: var(--teal) !important; text-decoration: underline; text-underline-offset: 3px; }
-        .il-article-body a:hover { opacity: 0.8; }
-        .il-article-body ul,
-        .il-article-body ol  { padding-left: 1.5em; margin-bottom: 1.25em; }
-        .il-article-body li  { line-height: 1.75; margin-bottom: 0.4em; }
-        .il-article-body blockquote {
-          border-left: 3px solid var(--teal) !important;
-          padding-left: 1.2em;
-          margin: 1.5em 0;
-          opacity: 0.8;
-          font-style: italic;
-        }
-        .il-article-body table {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 1.5em 0;
-          font-size: 0.9rem;
-        }
-        .il-article-body th,
-        .il-article-body td {
-          padding: 10px 14px;
-          border: 1px solid var(--border) !important;
-          text-align: left;
-        }
-        .il-article-body th {
-          background: var(--bg2) !important;
-          font-weight: 700;
-        }
-        .il-article-body code {
-          background: var(--bg2) !important;
-          color: var(--teal) !important;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-size: 0.88em;
-          font-family: 'JetBrains Mono', monospace;
-        }
-        .il-article-body pre {
-          background: var(--bg2) !important;
-          padding: 1.2em;
-          border-radius: 6px;
-          overflow-x: auto;
-          margin: 1.5em 0;
-        }
-        .il-article-body pre code {
-          padding: 0;
-          background: transparent !important;
-        }
-        .il-article-body img {
-          max-width: 100%;
-          border-radius: 6px;
-          margin: 1.5em 0;
-        }
-        .il-article-body hr {
-          border: none !important;
-          border-top: 1px solid var(--border) !important;
-          margin: 2em 0;
-        }
-        /* Kill any white boxes that came from publisher */
-        .il-article-body [style*="background: white"],
-        .il-article-body [style*="background:#fff"],
-        .il-article-body [style*="background: #fff"],
-        .il-article-body [style*="background-color: white"],
-        .il-article-body [style*="background-color:#fff"],
-        .il-article-body [style*="background-color: #fff"] {
-          background: transparent !important;
-        }
-        .il-article-body [style*="color: #000"],
-        .il-article-body [style*="color:#000"],
-        .il-article-body [style*="color: black"],
-        .il-article-body [style*="color: rgb(0"],
-        .il-article-body [style*="color:#333"] {
-          color: var(--text) !important;
-        }
+        .il-prose h2 { font-size: clamp(1.4rem,2.5vw,1.9rem); }
+        .il-prose h3 { font-size: clamp(1.15rem,2vw,1.45rem); }
+        .il-prose p  { line-height: 1.8; margin-bottom: 1.25em; opacity: 0.88; }
+        .il-prose a  { color: var(--teal) !important; text-decoration: underline; text-underline-offset: 3px; }
+        .il-prose ul,.il-prose ol { padding-left: 1.5em; margin-bottom: 1.25em; }
+        .il-prose li { line-height: 1.75; margin-bottom: 0.4em; }
+        .il-prose blockquote { border-left: 3px solid var(--teal) !important; padding-left: 1.2em; margin: 1.5em 0; opacity: 0.8; font-style: italic; }
+        .il-prose table { width: 100%; border-collapse: collapse; margin: 1.5em 0; font-size: 0.9rem; }
+        .il-prose th,.il-prose td { padding: 10px 14px; border: 1px solid var(--border2) !important; text-align: left; }
+        .il-prose th { background: var(--bg2) !important; font-weight: 700; }
+        .il-prose code { background: var(--bg2) !important; color: var(--teal) !important; padding: 2px 6px; border-radius: 4px; font-size: 0.88em; font-family: 'JetBrains Mono', monospace; }
+        .il-prose pre { background: var(--bg2) !important; padding: 1.2em; border-radius: 6px; overflow-x: auto; margin: 1.5em 0; }
+        .il-prose pre code { padding: 0; background: transparent !important; }
+        .il-prose img { max-width: 100%; border-radius: 6px; margin: 1.5em 0; }
+        .il-prose hr { border: none !important; border-top: 1px solid var(--border2) !important; margin: 2em 0; }
+        .il-prose [style*="background:#fff"],.il-prose [style*="background: #fff"],
+        .il-prose [style*="background:white"],.il-prose [style*="background: white"],
+        .il-prose [style*="background-color:#fff"],.il-prose [style*="background-color: #fff"],
+        .il-prose [style*="background-color:white"],.il-prose [style*="background-color: white"] { background: transparent !important; }
+        .il-prose [style*="color:#000"],.il-prose [style*="color: #000"],
+        .il-prose [style*="color:black"],.il-prose [style*="color: black"],
+        .il-prose [style*="color:#333"],.il-prose [style*="color: #333"] { color: var(--text) !important; }
       `}</style>
 
-      {/* ── Breadcrumb ── */}
-      <div style={{ background: 'var(--bg2)', borderBottom: '1px solid var(--border2)', padding: '12px var(--page-pad)' }}>
-        <div style={{ maxWidth: 'var(--max-w)', margin: '0 auto', display: 'flex', gap: 8, alignItems: 'center', fontFamily: mono, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          <Link href="/" style={{ color: 'var(--text)', opacity: 0.5, textDecoration: 'none' }}>Home</Link>
-          <span style={{ opacity: 0.3 }}>›</span>
-          <Link href={`/${article.category}`} style={{ color: 'var(--text)', opacity: 0.5, textDecoration: 'none' }}>
-            {categoryLabel[article.category] || article.category}
-          </Link>
-          <span style={{ opacity: 0.3 }}>›</span>
-          <span style={{ color: 'var(--teal)', opacity: 0.9 }}>{article.title}</span>
+      <div style={{ marginBottom: 32 }}>
+        <Link href={`/${a.category}`} style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          {a.categoryLabel}
+        </Link>
+        <span style={{ color: 'var(--muted)', margin: '0 8px' }}>·</span>
+        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em' }}>{a.readTime} read</span>
+        {a.publishedAt && (
+          <>
+            <span style={{ color: 'var(--muted)', margin: '0 8px' }}>·</span>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--muted)', letterSpacing: '0.08em' }}>
+              {new Date(a.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </span>
+          </>
+        )}
+      </div>
+
+      <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(1.8rem,4vw,3rem)', fontWeight: 600, lineHeight: 1.2, maxWidth: '30ch', marginBottom: 20, color: 'var(--text)' }}>
+        {a.title}
+      </h1>
+
+      <p style={{ fontSize: 'clamp(1rem,2vw,1.15rem)', color: 'var(--muted)', maxWidth: '62ch', lineHeight: 1.7, marginBottom: 48 }}>
+        {a.excerpt}
+      </p>
+
+      <div
+        className="il-prose"
+        style={{ borderTop: '1px solid var(--border2)', paddingTop: 48 }}
+        dangerouslySetInnerHTML={{ __html: a.body }}
+      />
+
+      {a.faqs && a.faqs.length > 0 && (
+        <div style={{ marginTop: 64, maxWidth: '72ch' }}>
+          <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 'clamp(1.4rem,3vw,2rem)', fontWeight: 600, marginBottom: 24, color: 'var(--text)' }}>
+            Frequently Asked Questions
+          </h2>
+          {a.faqs.map((faq, i) => (
+            <div key={i} style={{ marginBottom: 24, paddingBottom: 24, borderBottom: '1px solid var(--border2)' }}>
+              <div style={{ fontWeight: 600, marginBottom: 8, color }}>{faq.q}</div>
+              <div style={{ color: 'var(--muted)', lineHeight: 1.7 }}>{faq.a}</div>
+            </div>
+          ))}
         </div>
-      </div>
-
-      {/* ── Article header ── */}
-      <header style={{
-        background: 'var(--bg)', borderBottom: '1px solid var(--border2)',
-        padding: 'clamp(40px,6vw,72px) var(--page-pad)',
-      }}>
-        <div style={{ maxWidth: 780, margin: '0 auto' }}>
-          <div style={{
-            fontFamily: mono, fontSize: 11, letterSpacing: '0.14em',
-            textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 20,
-            display: 'flex', gap: 16, alignItems: 'center',
-          }}>
-            <span>{article.pill || categoryLabel[article.category]}</span>
-            {article.readTime && <><span style={{ opacity: 0.3 }}>·</span><span>{article.readTime} read</span></>}
-            {article.publishedAt && (
-              <><span style={{ opacity: 0.3 }}>·</span>
-              <span style={{ opacity: 0.7 }}>
-                {new Date(article.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-              </span></>
-            )}
-          </div>
-
-          <h1 style={{
-            fontFamily: serif, fontSize: 'clamp(2rem, 4.5vw, 3.4rem)',
-            fontWeight: 700, lineHeight: 1.15, color: 'var(--text)',
-            marginBottom: 24, letterSpacing: '-0.01em',
-          }}>{article.title}</h1>
-
-          {article.excerpt && (
-            <p style={{
-              fontSize: 'clamp(1rem, 1.8vw, 1.2rem)', color: 'var(--text)',
-              opacity: 0.7, lineHeight: 1.75, marginBottom: 0,
-            }}>{article.excerpt}</p>
-          )}
-        </div>
-      </header>
-
-      {/* ── Article body + sidebar ── */}
-      <div style={{
-        maxWidth: 'var(--max-w)', margin: '0 auto',
-        padding: 'clamp(40px,5vw,64px) var(--page-pad)',
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0,1fr) 300px',
-        gap: 56,
-        alignItems: 'start',
-      }}>
-        {/* Main content */}
-        <article>
-          <div
-            className="il-article-body"
-            style={{ fontSize: 'clamp(1rem, 1.6vw, 1.08rem)', lineHeight: 1.8, color: 'var(--text)' }}
-            dangerouslySetInnerHTML={{ __html: (article as any).body || '' }}
-          />
-
-          {/* Article footer */}
-          <div style={{
-            marginTop: 48, paddingTop: 32, borderTop: '1px solid var(--border)',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16,
-          }}>
-            <Link href={`/${article.category}`} style={{
-              fontFamily: mono, fontSize: 11, color: 'var(--teal)',
-              letterSpacing: '0.08em', textTransform: 'uppercase', textDecoration: 'none',
-            }}>← Back to {categoryLabel[article.category] || 'Articles'}</Link>
-            <div style={{ fontFamily: mono, fontSize: 10, color: 'var(--text)', opacity: 0.4, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              IntelligentLandlord.com — Free Resource
-            </div>
-          </div>
-        </article>
-
-        {/* Sidebar */}
-        <aside style={{ position: 'sticky', top: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
-          {/* Table of contents placeholder */}
-          <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', padding: 24 }}>
-            <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 16 }}>In This Article</div>
-            <div style={{ fontFamily: mono, fontSize: 12, color: 'var(--text)', opacity: 0.55 }}>
-              Use the headings in the article to navigate sections.
-            </div>
-          </div>
-
-          {/* Related articles */}
-          {related.length > 0 && (
-            <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', padding: 24 }}>
-              <div style={{ fontFamily: mono, fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 16 }}>Related Guides</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                {related.slice(0, 4).map(r => (
-                  <Link key={r.slug} href={`/${r.category}/${r.slug}`} style={{ textDecoration: 'none' }}>
-                    <div style={{ fontFamily: mono, fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 4 }}>
-                      {categoryLabel[r.category] || r.category}
-                    </div>
-                    <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.4, borderBottom: '1px solid var(--border)', paddingBottom: 14 }}>
-                      {r.title} →
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <AdSlot size="rectangle" />
-        </aside>
-      </div>
-
-      <div style={{ padding: '0 var(--page-pad) 48px', display: 'flex', justifyContent: 'center' }}>
-        <AdSlot size="leaderboard" />
-      </div>
-    </>
+      )}
+    </div>
   )
 }
