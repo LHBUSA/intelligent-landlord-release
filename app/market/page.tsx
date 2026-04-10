@@ -2,13 +2,15 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getArticlesByCategory } from '@/lib/articles'
 
+export const revalidate = 3600
+
 export const metadata: Metadata = {
   title: 'Rental Market',
   description: 'Cap rates, vacancy trends, rent growth data, and market intelligence for rental property investors.',
 }
 
-export default function CategoryPage() {
-  const articles = getArticlesByCategory('market' as const)
+export default async function CategoryPage() {
+  const articles = await getArticlesByCategory('market' as const)
   return (
     <div style={{ maxWidth: 'var(--max-w)', margin: '0 auto', padding: 'clamp(40px,6vw,72px) var(--page-pad)' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: 16 }}>Rental Market</div>
