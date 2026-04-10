@@ -123,10 +123,9 @@ export default async function Home() {
             paddingTop: 28, borderTop: '1px solid var(--border)',
           }}>
             {[
-              { val: '100M+', lbl: 'Parcels tracked' },
-              { val: '44',   lbl: 'States covered' },
+              { val: '50',    lbl: 'States covered' },
               { val: 'Daily', lbl: 'Data refresh' },
-              { val: 'Free', lbl: 'Always' },
+              { val: 'Free',  lbl: 'Always' },
             ].map((t, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div style={{ fontFamily: serif, fontSize: 20, fontWeight: 700, color: 'var(--teal)' }}>{t.val}</div>
@@ -232,52 +231,6 @@ export default async function Home() {
           }}>All Stories</Link>
         </div>
         <ArticleCards articles={recent} />
-      </section>
-
-      {/* ── PropData promo banner ── */}
-      <section style={{
-        background: 'var(--bg)', borderTop: '1px solid var(--border2)',
-        borderBottom: '1px solid var(--border2)',
-        padding: 'clamp(36px,4vw,56px) var(--page-pad)',
-      }}>
-        <div style={{
-          maxWidth: 'var(--max-w)', margin: '0 auto',
-          display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'center',
-        }}>
-          <div>
-            <div style={{
-              fontFamily: mono, fontSize: 10, letterSpacing: '0.16em',
-              textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 12,
-              display: 'flex', alignItems: 'center', gap: 8,
-            }}>
-              <span style={{ width: 20, height: 1, background: 'var(--teal)', display: 'block' }} />
-              Powered by PropData API
-            </div>
-            <h3 style={{
-              fontFamily: serif, fontSize: 'clamp(1.4rem,2.5vw,2rem)',
-              fontWeight: 600, marginBottom: 10, color: 'var(--text)', lineHeight: 1.25,
-            }}>
-              100M+ parcels. 44 states. Daily refresh.
-            </h3>
-            <p style={{ color: 'var(--muted)', maxWidth: '52ch', lineHeight: 1.7, fontSize: 15 }}>
-              The market data on this site is powered by PropData — the most comprehensive real estate data API at any price point. AVM estimates, rent indices, ownership records, and market velocity. Free tier available.
-            </p>
-          </div>
-          <a
-            href="https://propdata.proptechusa.ai/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              background: 'transparent', color: 'var(--teal)',
-              border: '1px solid var(--teal)', padding: '14px 28px',
-              fontFamily: mono, fontSize: 11, letterSpacing: '0.08em',
-              textTransform: 'uppercase', fontWeight: 700, whiteSpace: 'nowrap',
-              flexShrink: 0, textDecoration: 'none', display: 'inline-block',
-            }}
-          >
-            Explore PropData ↗
-          </a>
-        </div>
       </section>
 
       {/* ── State law CTA ── */}
