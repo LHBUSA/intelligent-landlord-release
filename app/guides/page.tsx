@@ -2,13 +2,15 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getArticlesByCategory } from '@/lib/articles'
 
+export const revalidate = 3600
+
 export const metadata: Metadata = {
   title: 'Landlord Guides',
   description: 'Everything landlords need to know — from lease agreements to eviction procedure, written in plain English.',
 }
 
-export default function CategoryPage() {
-  const articles = getArticlesByCategory('guides' as const)
+export default async function CategoryPage() {
+  const articles = await getArticlesByCategory('guides' as const)
   return (
     <div style={{ maxWidth: 'var(--max-w)', margin: '0 auto', padding: 'clamp(40px,6vw,72px) var(--page-pad)' }}>
       <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--teal)', marginBottom: 16 }}>Landlord Guides</div>
