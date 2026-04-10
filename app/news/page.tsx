@@ -1,6 +1,5 @@
 import Link from "next/link"
 import type { Metadata } from "next"
-import { ARTICLES } from "@/lib/articles"
 import { fetchSupabaseArticles } from "@/lib/supabase-articles"
 
 export const dynamic = "force-dynamic"
@@ -10,18 +9,16 @@ export const metadata: Metadata = {
   description: "Weekly landlord market intelligence: mortgage rate updates, eviction law changes, rental market data, and everything landlords need to stay ahead.",
 }
 
-const mono = "'JetBrains Mono', monospace"
+const mono  = "'JetBrains Mono', monospace"
 const serif = "'Cormorant Garamond', Georgia, serif"
 const PER_PAGE = 12
 
-// Editorial dark tokens — deep slate, not black
-const BG      = "#1A2130"
-const BG2     = "#212A3A"
-const BG3     = "#263044"
-const BORDER  = "rgba(255,255,255,0.09)"
-const TEXT     = "#E8EDF4"
-const MUTED    = "#8FA4B8"
-const TEAL     = "#2DD4BF"
+const BG     = "#1A2130"
+const BG2    = "#212A3A"
+const BORDER = "rgba(255,255,255,0.09)"
+const TEXT   = "#E8EDF4"
+const MUTED  = "#8FA4B8"
+const TEAL   = "#2DD4BF"
 
 function formatDate(d: string) {
   return new Date(d).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
@@ -31,32 +28,30 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
   const params = await searchParams
   const page = Math.max(1, parseInt(params.page || "1"))
 
+  // Single source of truth — Supabase only
   let remoteArticles: any[] = []
   try { remoteArticles = await fetchSupabaseArticles() } catch {}
 
-  const staticItems = ARTICLES.map(a => ({ ...a, isFullPage: false, href: `/${a.category}/${a.slug}` }))
-  const remoteItems = remoteArticles.map((a: any) => ({
-    slug: a.slug, title: a.title, excerpt: a.excerpt || "",
-    category: a.category, categoryLabel: a.category_label || a.category,
-    pill: a.pill || "Article", publishedAt: (a.published_at || "").split("T")[0],
-    readTime: a.read_time || "5 min", isFullPage: a.is_full_page || false,
-    href: a.is_full_page ? `/article/${a.slug}` : `/${a.category}/${a.slug}`,
-  }))
+  const all = remoteArticles.map((a: any) => ({
+    slug:          a.slug,
+    title:         a.title,
+    excerpt:       a.excerpt || "",
+    category:      a.category,
+    categoryLabel: a.category_label || a.category,
+    pill:          a.pill || "Article",
+    publishedAt:   (a.published_at || "").split("T")[0],
+    readTime:      a.read_time || "5 min",
+    isFullPage:    a.is_full_page || false,
+    href:          a.is_full_page ? `/article/${a.slug}` : `/${a.category}/${a.slug}`,
+  })).sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
 
-  const slugsSeen = new Set<string>()
-  const all = [...remoteItems, ...staticItems].filter(a => {
-    if (slugsSeen.has(a.slug)) return false
-    slugsSeen.add(a.slug)
-    return true
-  }).sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-
-  const newsArticles = all.filter(a => a.category === "news")
+  const newsArticles  = all.filter(a => a.category === "news")
   const otherArticles = all.filter(a => a.category !== "news")
-  const latest = newsArticles[0]
-  const recentNews = newsArticles.slice(1, 4)
+  const latest        = newsArticles[0]
+  const recentNews    = newsArticles.slice(1, 4)
 
   const totalPages = Math.ceil(otherArticles.length / PER_PAGE)
-  const paginated = otherArticles.slice((page - 1) * PER_PAGE, page * PER_PAGE)
+  const paginated  = otherArticles.slice((page - 1) * PER_PAGE, page * PER_PAGE)
 
   return (
     <div style={{ background: BG, minHeight: "100vh" }}>
@@ -64,7 +59,7 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
       {/* Hero */}
       <section style={{ padding: "clamp(56px,7vw,96px) var(--page-pad)", borderBottom: `1px solid ${BORDER}`, background: BG2, position: "relative", overflow: "hidden" }}>
         <div style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(${BORDER} 1px, transparent 1px), linear-gradient(90deg, ${BORDER} 1px, transparent 1px)`, backgroundSize: "48px 48px", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", top: -60, right: "10%", width: 400, height: 400, background: `radial-gradient(circle, rgba(45,212,191,0.07) 0%, transparent 70%)`, pointerEvents: "none" }} />
+        <div style={{ position: "absolute", top: -60, right: "10%", width: 400, height: 400, background: "radial-gradient(circle, rgba(45,212,191,0.07) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ maxWidth: "var(--max-w)", margin: "0 auto", position: "relative" }}>
           <div style={{ fontFamily: mono, fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL, marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ width: 28, height: 1, background: TEAL, display: "block" }} />
@@ -82,14 +77,14 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
 
       <div style={{ maxWidth: "var(--max-w)", margin: "0 auto", padding: "clamp(48px,5vw,72px) var(--page-pad)" }}>
 
-        {/* Latest issue — editorial full-width feature */}
+        {/* Latest issue */}
         {latest && (
           <div style={{ marginBottom: 72 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
               <span style={{ fontFamily: mono, fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: MUTED }}>Latest Issue</span>
               <span style={{ flex: 1, height: 1, background: BORDER }} />
             </div>
-            <Link href={(latest as any).href} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, background: BG2, border: `1px solid ${BORDER}`, textDecoration: "none", overflow: "hidden", position: "relative" }}>
+            <Link href={latest.href} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0, background: BG2, border: `1px solid ${BORDER}`, textDecoration: "none", overflow: "hidden", position: "relative" }}>
               <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: 3, background: TEAL }} />
               <div style={{ padding: "clamp(28px,4vw,52px)", borderRight: `1px solid ${BORDER}` }}>
                 <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 24, flexWrap: "wrap" }}>
@@ -159,7 +154,6 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
               {page > 1 && (
                 <Link href={`/news?page=${page - 1}`} style={{ fontFamily: mono, fontSize: 11, color: TEXT, background: BG2, border: `1px solid ${BORDER}`, padding: "10px 20px", textDecoration: "none", letterSpacing: "0.06em" }}>← Prev</Link>
               )}
-
               {Array.from({ length: totalPages }, (_, i) => i + 1)
                 .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
                 .map((p, idx, arr) => {
@@ -175,7 +169,6 @@ export default async function NewsPage({ searchParams }: { searchParams: Promise
                     </span>
                   )
                 })}
-
               {page < totalPages && (
                 <Link href={`/news?page=${page + 1}`} style={{ fontFamily: mono, fontSize: 11, color: TEXT, background: BG2, border: `1px solid ${BORDER}`, padding: "10px 20px", textDecoration: "none", letterSpacing: "0.06em" }}>Next →</Link>
               )}
