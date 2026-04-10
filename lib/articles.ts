@@ -26,151 +26,8 @@ export interface Article {
 }
 
 // ─────────────────────────────────────────────
-//  Supabase config — set these in Vercel env vars
-//  NEXT_PUBLIC_SUPABASE_URL
-//  NEXT_PUBLIC_SUPABASE_ANON_KEY
-// ─────────────────────────────────────────────
-const SB_URL  = process.env.NEXT_PUBLIC_SUPABASE_URL  ?? ''
-const SB_KEY  = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
-const TABLE   = 'il_articles'
-const SELECT  = 'id,title,slug,category,category_label,excerpt,pill,read_time,tags,author,featured,body,published_at,created_at,is_full_page'
-
-// Row from Supabase → Article shape
-function rowToArticle(r: Record<string, unknown>): Article {
-  return {
-    slug:          String(r.slug         ?? ''),
-    title:         String(r.title        ?? ''),
-    excerpt:       String(r.excerpt      ?? ''),
-    category:      (r.category as ArticleCategory) ?? 'news',
-    categoryLabel: String(r.category_label ?? r.category ?? ''),
-    pill:          String(r.pill         ?? ''),
-    tags:          Array.isArray(r.tags) ? (r.tags as string[]) : [],
-    publishedAt:   String(r.published_at ?? r.created_at ?? ''),
-    readTime:      String(r.read_time    ?? ''),
-    author:        String(r.author       ?? 'IL Editorial'),
-    body:          String(r.body         ?? ''),
-    featured:      Boolean(r.featured),
-  }
-}
-
-// ─────────────────────────────────────────────
-//  Core fetch — server-side, cached 1 hour
-// ─────────────────────────────────────────────
-async function fetchAllArticles(): Promise<Article[]> {
-  if (!SB_URL || !SB_KEY) {
-    console.warn('[articles] Supabase env vars missing — using static fallback')
-    return STATIC_ARTICLES
-  }
-  try {
-    const res = await fetch(
-      `${SB_URL}/rest/v1/${TABLE}?select=${SELECT}&order=published_at.desc`,
-      {
-        headers: {
-          apikey:        SB_KEY,
-          Authorization: `Bearer ${SB_KEY}`,
-          Accept:        'application/json',
-        },
-        next: { revalidate: 3600 }, // Next.js ISR — refresh every hour
-      }
-    )
-    if (!res.ok) {
-      console.error('[articles] Supabase error', res.status, await res.text())
-      return STATIC_ARTICLES
-    }
-    const rows = (await res.json()) as Record<string, unknown>[]
-    if (!Array.isArray(rows) || rows.length === 0) return STATIC_ARTICLES
-    return rows.map(rowToArticle)
-  } catch (err) {
-    console.error('[articles] fetch failed', err)
-    return STATIC_ARTICLES
-  }
-}
-
-// ─────────────────────────────────────────────
-//  Public API — all async, all server-safe
-// ─────────────────────────────────────────────
-export async function getAllArticles(): Promise<Article[]> {
-  return fetchAllArticles()
-}
-
-export async function getFeaturedArticle(): Promise<Article | undefined> {
-  const articles = await fetchAllArticles()
-  return articles.find(a => a.featured) ?? articles[0]
-}
-
-export async function getRecentArticles(limit = 6, excludeSlug?: string): Promise<Article[]> {
-  const articles = await fetchAllArticles()
-  return articles.filter(a => a.slug !== excludeSlug).slice(0, limit)
-}
-
-export async function getArticlesByCategory(category: ArticleCategory): Promise<Article[]> {
-  const articles = await fetchAllArticles()
-  return articles.filter(a => a.category === category)
-}
-
-export async function getArticle(category: ArticleCategory, slug: string): Promise<Article | undefined> {
-  const articles = await fetchAllArticles()
-  return articles.find(a => a.category === category && a.slug === slug)
-}
-
-export async function getSlugsForCategory(category: ArticleCategory): Promise<string[]> {
-  const articles = await fetchAllArticles()
-  return articles.filter(a => a.category === category).map(a => a.slug)
-}
-
-export async function getRelatedArticles(category: ArticleCategory, slug: string, limit = 3): Promise<Article[]> {
-  const articles = await fetchAllArticles()
-  return articles.filter(a => a.category === category && a.slug !== slug).slice(0, limit)
-}
-
-export async function getLatestNews(limit = 5): Promise<Article[]> {
-  const articles = await fetchAllArticles()
-  return articles.filter(a => a.category === 'news').slice(0, limit)
-}
-
-export async function getSearchIndex() {
-  const articles = await fetchAllArticles()
-  return articles.map(a => ({
-    slug:          a.slug,
-    title:         a.title,
-    excerpt:       a.excerpt,
-    category:      a.category,
-    categoryLabel: a.categoryLabel,
-    tags:          a.tags,
-  }))
-}
-
-// ─────────────────────────────────────────────
-//  Derived counts — computed from live data
-// ─────────────────────────────────────────────
-export async function getArticleCount(): Promise<number> {
-  const articles = await fetchAllArticles()
-  return articles.length
-}
-
-export async function getCategoryCounts(): Promise<Record<ArticleCategory, number>> {
-  const articles = await fetchAllArticles()
-  return {
-    guides: articles.filter(a => a.category === 'guides').length,
-    market: articles.filter(a => a.category === 'market').length,
-    legal:  articles.filter(a => a.category === 'legal').length,
-    news:   articles.filter(a => a.category === 'news').length,
-  }
-}
-
-// Keep these for any legacy sync code still referencing them
-// They will return stale static counts — migrate callers to the async versions above
-export const ARTICLE_COUNT    = STATIC_ARTICLES.length
-export const CATEGORY_COUNTS  = {
-  guides: STATIC_ARTICLES.filter(a => a.category === 'guides').length,
-  market: STATIC_ARTICLES.filter(a => a.category === 'market').length,
-  legal:  STATIC_ARTICLES.filter(a => a.category === 'legal').length,
-  news:   STATIC_ARTICLES.filter(a => a.category === 'news').length,
-}
-
-// ─────────────────────────────────────────────
-//  Static fallback — used when Supabase is
-//  unavailable or env vars are not set
+//  Static fallback — MUST be declared first
+//  Used when Supabase is unavailable
 // ─────────────────────────────────────────────
 const STATIC_ARTICLES: Article[] = [
   {
@@ -230,3 +87,145 @@ const STATIC_ARTICLES: Article[] = [
     body: '',
   },
 ]
+
+// ─────────────────────────────────────────────
+//  Legacy sync exports — derived from static
+//  fallback only. Migrate callers to the async
+//  versions below.
+// ─────────────────────────────────────────────
+export const ARTICLE_COUNT = STATIC_ARTICLES.length
+export const CATEGORY_COUNTS = {
+  guides: STATIC_ARTICLES.filter(a => a.category === 'guides').length,
+  market: STATIC_ARTICLES.filter(a => a.category === 'market').length,
+  legal:  STATIC_ARTICLES.filter(a => a.category === 'legal').length,
+  news:   STATIC_ARTICLES.filter(a => a.category === 'news').length,
+}
+
+// ─────────────────────────────────────────────
+//  Supabase config
+//  Set in Vercel: NEXT_PUBLIC_SUPABASE_URL
+//                 NEXT_PUBLIC_SUPABASE_ANON_KEY
+// ─────────────────────────────────────────────
+const SB_URL = process.env.NEXT_PUBLIC_SUPABASE_URL  ?? ''
+const SB_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''
+const TABLE  = 'il_articles'
+const SELECT = 'id,title,slug,category,category_label,excerpt,pill,read_time,tags,author,featured,body,published_at,created_at,is_full_page'
+
+function rowToArticle(r: Record<string, unknown>): Article {
+  return {
+    slug:          String(r.slug          ?? ''),
+    title:         String(r.title         ?? ''),
+    excerpt:       String(r.excerpt       ?? ''),
+    category:      (r.category as ArticleCategory) ?? 'news',
+    categoryLabel: String(r.category_label ?? r.category ?? ''),
+    pill:          String(r.pill          ?? ''),
+    tags:          Array.isArray(r.tags) ? (r.tags as string[]) : [],
+    publishedAt:   String(r.published_at  ?? r.created_at ?? ''),
+    readTime:      String(r.read_time     ?? ''),
+    author:        String(r.author        ?? 'IL Editorial'),
+    body:          String(r.body          ?? ''),
+    featured:      Boolean(r.featured),
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Core fetch — server-side, cached 1 hour
+// ─────────────────────────────────────────────
+async function fetchAllArticles(): Promise<Article[]> {
+  if (!SB_URL || !SB_KEY) {
+    console.warn('[articles] Supabase env vars missing — using static fallback')
+    return STATIC_ARTICLES
+  }
+  try {
+    const res = await fetch(
+      `${SB_URL}/rest/v1/${TABLE}?select=${SELECT}&order=published_at.desc`,
+      {
+        headers: {
+          apikey:        SB_KEY,
+          Authorization: `Bearer ${SB_KEY}`,
+          Accept:        'application/json',
+        },
+        next: { revalidate: 3600 },
+      }
+    )
+    if (!res.ok) {
+      console.error('[articles] Supabase error', res.status, await res.text())
+      return STATIC_ARTICLES
+    }
+    const rows = (await res.json()) as Record<string, unknown>[]
+    if (!Array.isArray(rows) || rows.length === 0) return STATIC_ARTICLES
+    return rows.map(rowToArticle)
+  } catch (err) {
+    console.error('[articles] fetch failed', err)
+    return STATIC_ARTICLES
+  }
+}
+
+// ─────────────────────────────────────────────
+//  Public async API
+// ─────────────────────────────────────────────
+export async function getAllArticles(): Promise<Article[]> {
+  return fetchAllArticles()
+}
+
+export async function getFeaturedArticle(): Promise<Article | undefined> {
+  const articles = await fetchAllArticles()
+  return articles.find(a => a.featured) ?? articles[0]
+}
+
+export async function getRecentArticles(limit = 6, excludeSlug?: string): Promise<Article[]> {
+  const articles = await fetchAllArticles()
+  return articles.filter(a => a.slug !== excludeSlug).slice(0, limit)
+}
+
+export async function getArticlesByCategory(category: ArticleCategory): Promise<Article[]> {
+  const articles = await fetchAllArticles()
+  return articles.filter(a => a.category === category)
+}
+
+export async function getArticle(category: ArticleCategory, slug: string): Promise<Article | undefined> {
+  const articles = await fetchAllArticles()
+  return articles.find(a => a.category === category && a.slug === slug)
+}
+
+export async function getSlugsForCategory(category: ArticleCategory): Promise<string[]> {
+  const articles = await fetchAllArticles()
+  return articles.filter(a => a.category === category).map(a => a.slug)
+}
+
+export async function getRelatedArticles(category: ArticleCategory, slug: string, limit = 3): Promise<Article[]> {
+  const articles = await fetchAllArticles()
+  return articles.filter(a => a.category === category && a.slug !== slug).slice(0, limit)
+}
+
+export async function getLatestNews(limit = 5): Promise<Article[]> {
+  const articles = await fetchAllArticles()
+  return articles.filter(a => a.category === 'news').slice(0, limit)
+}
+
+export async function getSearchIndex() {
+  const articles = await fetchAllArticles()
+  return articles.map(a => ({
+    slug:          a.slug,
+    title:         a.title,
+    excerpt:       a.excerpt,
+    category:      a.category,
+    categoryLabel: a.categoryLabel,
+    tags:          a.tags,
+  }))
+}
+
+export async function getArticleCount(): Promise<number> {
+  const articles = await fetchAllArticles()
+  return articles.length
+}
+
+export async function getCategoryCounts(): Promise<Record<ArticleCategory, number>> {
+  const articles = await fetchAllArticles()
+  return {
+    guides: articles.filter(a => a.category === 'guides').length,
+    market: articles.filter(a => a.category === 'market').length,
+    legal:  articles.filter(a => a.category === 'legal').length,
+    news:   articles.filter(a => a.category === 'news').length,
+  }
+}
