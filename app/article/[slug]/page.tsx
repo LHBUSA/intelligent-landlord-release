@@ -9,8 +9,22 @@ const serif = "'Cormorant Garamond', Georgia, serif"
 
 function extractBody(html: string): string {
   if (!html) return ''
-  const match = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)
-  return match ? match[1] : html
+  // Try to get just the .prose div content
+  const proseMatch = html.match(/<div[^>]*class="[^"]*prose[^"]*"[^>]*>([\s\S]*?)<\/div>\s*(?:<\/div>|<aside|<footer|<script)/i)
+  if (proseMatch) return proseMatch[1]
+  // Fallback: get the body and strip nav/header/footer/aside/script/style tags
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)
+  if (!bodyMatch) return html
+  return bodyMatch[1]
+    .replace(/<nav[\s\S]*?<\/nav>/gi, '')
+    .replace(/<header[\s\S]*?<\/header>/gi, '')
+    .replace(/<footer[\s\S]*?<\/footer>/gi, '')
+    .replace(/<aside[\s\S]*?<\/aside>/gi, '')
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<link[^>]*>/gi, '')
+    .replace(/class="(ph|wrap|pm|pm|ps|nmc|nl |nlt|nlm|nav)[^"]*"/gi, '')
+    .trim()
 }
 
 interface Props { params: Promise<{ slug: string }> }
