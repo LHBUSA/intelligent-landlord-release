@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { getArticleBySlug, getRecentArticles } from '@/lib/articles'
+import { getArticle, getRecentArticles } from '@/lib/articles'
 import { notFound } from 'next/navigation'
 import { AdSlot } from '@/components/AdSlot'
 
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const article = await getArticleBySlug(params.slug)
+  const article = await getArticle(params.slug)
   if (!article) return { title: 'Article Not Found' }
   return {
     title: `${article.title} — Intelligent Landlord`,
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ArticlePage({ params }: Props) {
-  const article = await getArticleBySlug(params.slug)
+  const article = await getArticle(params.slug)
   if (!article) notFound()
 
   const related = await getRecentArticles(4, params.slug)
